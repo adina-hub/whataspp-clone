@@ -11,14 +11,19 @@ import Chat from "./Chat";
 
 function Sidebar() {
     const [user] = useAuthState(auth);
+
+    // reference to the db
     const userChatRef = db.collection('chats').where('users', 'array-contains', user.email);
+
+    // snapshot of the db - manages an array of unique items (all chats of the user) - real time listener
     const [chatsSnapshot] = useCollection(userChatRef);
 
     const createChat = () => {
-        const input = prompt('Please enter an email adsress for the user you want to chat with.');
+        const input = prompt('Please enter an email address for the user you want to chat with.');
 
         if(!input) return null;
 
+        // email has correct form, the chat doesn't already exists, the input is not the user email(you can't message yourself)
         if(EmailValidator.validate(input) && !chatAlreadyExists(input) && input !== user.email ){{
             db.collection('chats').add({
                 users: [user.email, input]
@@ -27,6 +32,7 @@ function Sidebar() {
     };
 
     const chatAlreadyExists = (recipientEmail) => 
+        // "!!" converts it to a boolean value
         !!chatsSnapshot?.docs.find(
             (chat) => 
                 chat.data().users.find((user) => user === recipientEmail)?.length > 0

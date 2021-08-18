@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { auth, provider } from "../firebase";
 
 function Login() {
+    // uses firebase function for signing in with google account
     const signIn = () => {
         auth.signInWithPopup(provider).catch(alert);
     }

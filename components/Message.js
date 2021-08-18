@@ -6,15 +6,17 @@ import moment from "moment";
 function Message({ user, message }) {
     const [userLoggedIn] = useAuthState(auth); 
 
+    //depeding on the type of user , a component is displayed
     const TypeOfMessage = user === userLoggedIn.email ? Sender : Receiver;
 
     return (
         <Container>
-            <TypeOfMessage>{message.message}
+            <TypeOfMessage>
+                {message.message}
                 <Timestamp>
+                    {/* 'moment' used for converting timestamp into another format */}
                     {message.timestamp ? moment(message.timestamp).format('LT') : '...'}
                 </Timestamp>
-
             </TypeOfMessage>
         </Container>
     )

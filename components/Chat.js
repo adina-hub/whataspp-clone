@@ -9,19 +9,24 @@ import { useRouter } from "next/dist/client/router";
 function Chat({ id, users }) {
     const router = useRouter();
     const [user] = useAuthState(auth);
+
+    //takes a snapshot recipient user 
     const [recipientSnapshot] = useCollection(
         db.collection('users').where('email', '==', getRecipientEmail(users, user))
     );
 
+    //redirects to the specific chat page
     const enterChat = () => {
         router.push(`/chat/${id}`);
     }
 
-    const recipient = recipientSnapshot?.docs?.[0]?.data
+    //the actual recipient user
+    const recipient = recipientSnapshot?.docs?.[0]?.data();
     const recipientEmail = getRecipientEmail(users, user);
 
     return (
         <Container onClick={enterChat}>
+            {/* if the recipient user exists it will display the profile photo*/}
             {recipient ? (
                  <UserAvatar src={recipient?.photoURL} />
             ) : 

@@ -15,10 +15,15 @@ import getRecipientEmail from "../utils/getRecipientEmail";
 import TimeAgo from "timeago-react";
 
 function ChatScreen({ chat, messages }) {
+
     const [user] = useAuthState(auth);
     const [input, setInput] = useState("");
-    const endOfMessageRef = useRef(null);
     const router = useRouter();
+
+    //connect a pointer to an element
+    const endOfMessageRef = useRef(null);
+
+    //takes the messages from the specific chat
     const [messagesSnapshot] = useCollection(
         db.collection('chats')
           .doc(router.query.id)
@@ -32,9 +37,11 @@ function ChatScreen({ chat, messages }) {
             .where('email','==', getRecipientEmail(chat.users, user))
     );
 
+    //return the messages
     const showMessages = () => {
         if (messagesSnapshot) {
             return messagesSnapshot.docs.map((message) => (
+                //for every message, a Message component is displayed
                 <Message
                     key={message.id}
                     user={message.data().user}
@@ -44,6 +51,7 @@ function ChatScreen({ chat, messages }) {
                     }}
                 />
             ));
+          //uses server side rendered data
         } else {
             return JSON.parse(messages).map((message) => (
                 <Message key={message.id} user={message.user} message={message} />
@@ -61,13 +69,15 @@ function ChatScreen({ chat, messages }) {
     const sendMessage = (e) => {
         e.preventDefault();
 
+        //updates the last seen...
         db.collection('users').doc(user.uid).set(
             { 
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),   
             }, 
             {merge: true}
         );
 
+        //adds message to the chat
         db.collection('chats').doc(router.query.id).collection('messages').add({
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             message: input,
@@ -79,11 +89,13 @@ function ChatScreen({ chat, messages }) {
         ScrollToBottom();
     }
 
+    //recipient data
     const recipient = recipientSnapshot?.docs?.[0]?.data();
     const recipientEmail = getRecipientEmail(chat.users, user);
 
     return (
         <Container>
+            {/* if the recipient user exists displays the profile photo */}
             <Header>
                 {recipient ? (
                     <Avatar src={recipient?.photoURL} />

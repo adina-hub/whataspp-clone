@@ -16,6 +16,7 @@ function Chat({ chat, messages }) {
             </Head>
             <Sidebar />
             <ChatContainer>
+                {/* the component will show the specific chat and messages given by the server side rendering */}
                 <ChatScreen chat={chat} messages={messages}/>
             </ChatContainer>
         </Container>
@@ -24,33 +25,37 @@ function Chat({ chat, messages }) {
 
 export default Chat;
 
+//before the user sees the page, props will be fetched on the server (pre-fetch the data)
+//context gives access to the params of the url
 export async function getServerSideProps(context) {
+    //reference to the specific chat
     const ref = db.collection("chats").doc(context.query.id);
 
-    //Prep the messages on the server
+    //Prep the messages
     const messagesRef = await ref
         .collection('messages')
         .orderBy('timestamp', 'asc')
         .get();
 
-    const messages = messagesRef.docs.map((doc) => ({
+    //get the message response
+    const messages = messagesRef.docs.map((doc) => ({   //create an object with an id and data
         id: doc.id,
         ...doc.data()
-    })).map(messages => ({
-        ...messages,
-        timestamp: messages.timestamp.toDate().getTime(),
+    })).map(messages => ({   //for each of the messages
+        ...messages,    //get all the properties of the message
+        timestamp: messages.timestamp.toDate().getTime(),   //change the timestamp
     }));
 
     //Prep the chats
     const chatRef = await ref.get();
-    const chat = {
+    const chat = {  
         id: chatRef.id,
         ...chatRef.data()
     }
 
     return {
         props: {
-            messages: JSON.stringify(messages),
+            messages: JSON.stringify(messages),  
             chat: chat
         }
     }
