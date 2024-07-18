@@ -62,7 +62,7 @@ function Sidebar() {
             {/* List of chats */}
             {chatsSnapshot?.docs.map((chat) => (
                 <Chat key={chat.id} id={chat.id} users={chat.data().users} />
-            ))};
+            ))}
         </Container>
     )
 }
